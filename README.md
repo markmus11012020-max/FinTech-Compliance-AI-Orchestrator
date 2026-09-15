@@ -2,6 +2,8 @@
 
 > **Production-ready Spring Boot микросервис для AML-комплаенса с локальной анонимизацией данных по 152-ФЗ.**
 > Целевая аудитория: российские банки и финтех-компании уровня WMT Group.
+>
+>  **Живое демо (Yandex Cloud VM):** Swagger UI — <http://158.160.152.145:8080/swagger-ui.html> · OpenAPI — <http://158.160.152.145:8080/api-docs> · Health — <http://158.160.152.145:8080/api/v1/health>
 
 ---
 
@@ -344,7 +346,14 @@ curl http://localhost:8080/api/v1/health
 # Ожидаемый ответ: {"status":"UP","provider":"mock",...}
 ```
 
-Swagger UI доступен по адресу:
+Живой деплой на Yandex Cloud VM (публичный адрес `158.160.152.145`):
+```
+http://158.160.152.145:8080/swagger-ui.html
+http://158.160.152.145:8080/api-docs
+http://158.160.152.145:8080/api/v1/health
+```
+
+Swagger UI локально доступен по адресу:
 ```
 http://localhost:8080/swagger-ui.html
 http://localhost:8080/api-docs
