@@ -1,0 +1,54 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: fintech-compliance-orchestrator
+  datasource:
+    url: jdbc:postgresql://db:5432/compliance_db
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:secure_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    open-in-view: false
+    show-sql: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+compliance:
+  llm:
+    provider: ${LLM_PROVIDER:mock} # yandexgpt | gigachat | mock
+    timeout-seconds: ${LLM_TIMEOUT_SECONDS:10}
+    temperature: ${LLM_TEMPERATURE:0.2}
+  yandexgpt:
+    api-key: ${YANDEXGPT_API_KEY:}
+    folder-id: ${YANDEXGPT_FOLDER_ID:}
+    model: ${YANDEXGPT_MODEL:yandexgpt/latest}
+    url: https://llm.api.cloud.yandex.net/foundationModels/v1/completion
+  gigachat:
+    api-key: ${GIGACHAT_API_KEY:}
+    scope: ${GIGACHAT_SCOPE:GIGACHAT_API_PERS}
+    model: ${GIGACHAT_MODEL:GigaChat-Pro}
+    url: https://gigachat.devices.sberbank.ru/api/v1/chat/completions
+
+logging:
+  level:
+    root: INFO
+    com.fintech.compliance: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
