@@ -46,6 +46,13 @@ compliance:
     model: ${GIGACHAT_MODEL:GigaChat-Pro}
     url: https://gigachat.devices.sberbank.ru/api/v1/chat/completions
 
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
 logging:
   level:
     root: INFO

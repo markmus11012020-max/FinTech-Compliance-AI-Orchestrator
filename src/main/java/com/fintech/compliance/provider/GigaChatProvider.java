@@ -42,6 +42,11 @@ public class GigaChatProvider implements LlmProvider {
     }
 
     @Override
+    public boolean canWork() {
+        return config.getApiKey() != null && !config.getApiKey().isBlank();
+    }
+
+    @Override
     public String complete(String maskedTransactionText) {
         if (config.getApiKey() == null || config.getApiKey().isBlank()) {
             throw new ComplianceException("GIGACHAT_API_KEY не задан");

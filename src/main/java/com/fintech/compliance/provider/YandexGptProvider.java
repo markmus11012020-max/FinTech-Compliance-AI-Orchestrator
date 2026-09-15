@@ -43,6 +43,12 @@ public class YandexGptProvider implements LlmProvider {
     }
 
     @Override
+    public boolean canWork() {
+        return config.getApiKey() != null && !config.getApiKey().isBlank()
+                && config.getFolderId() != null && !config.getFolderId().isBlank();
+    }
+
+    @Override
     public String complete(String maskedTransactionText) {
         validateCredentials();
         String modelUri = String.format("gpt://%s/%s", config.getFolderId(), config.getModel());

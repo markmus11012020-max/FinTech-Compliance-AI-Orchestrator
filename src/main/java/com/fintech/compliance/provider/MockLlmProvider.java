@@ -16,6 +16,11 @@ public class MockLlmProvider implements LlmProvider {
     }
 
     @Override
+    public boolean canWork() {
+        return true; // Mock всегда работает
+    }
+
+    @Override
     public String complete(String maskedTransactionText) {
         boolean suspicious = maskedTransactionText != null
                 && maskedTransactionText.toLowerCase().contains("[token_");

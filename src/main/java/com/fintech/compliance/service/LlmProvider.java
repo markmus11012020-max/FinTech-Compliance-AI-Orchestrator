@@ -12,6 +12,12 @@ public interface LlmProvider {
     String name();
 
     /**
+     * Проверить, может ли провайдер работать с текущей конфигурацией (имеет ли ключи).
+     * Используется для graceful fallback к mock-провайдеру.
+     */
+    boolean canWork();
+
+    /**
      * Отправить текст транзакции (уже анонимизированный) в LLM и получить сырой JSON-ответ.
      * Контракт: возвращается строка, содержащая JSON-объект
      * {"is_suspicious": bool, "risk_level": "LOW|MEDIUM|HIGH", "reason": "..."}.
