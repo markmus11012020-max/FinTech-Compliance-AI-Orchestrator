@@ -4,7 +4,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM huecker.io/library/openjdk:17-jdk-slim
+FROM huecker.io/library/eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/compliance-orchestrator-1.0.0.jar app.jar
 EXPOSE 8080
