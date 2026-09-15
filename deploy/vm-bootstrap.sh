@@ -28,7 +28,7 @@ IFS=$'\n\t'
 
 # ---------- параметры по умолчанию ----------
 REPO_URL="${REPO_URL:-https://github.com/markmus11012020-max/FinTech-Compliance-AI-Orchestrator.git}"
-BRANCH="${BRANCH:-main}"
+BRANCH="${BRANCH:-master}"
 APP_DIR="${APP_DIR:-/opt/fintech-compliance}"
 
 DAEMON_JSON_PATH="/etc/docker/daemon.json"
