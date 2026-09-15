@@ -280,3 +280,72 @@ start.bat
 ## 8. Лицензия
 
 Внутренний демо-проект. Свободное использование для целей оценки архитектуры.
+
+---
+
+## 9. Известные проблемы и исправления (2026-09-15)
+
+### Исправление HTTP 500 при старте приложения
+
+**Проблема:** При запуске приложения с `LLM_PROVIDER=yandexgpt` и отсутствующими/пустыми API ключами возникала HTTP 500 ошибка.
+
+**Причина:** 
+- Отсутствовала зависимость springdoc-openapi для Swagger UI в Spring Boot 3.x
+- При выборе провайдера yandexgpt/gigachat с пустыми ключами приложение не могло корректно инициализироваться
+
+**Решение (commits e2b908c, 85e98f4):**
+
+1. **Добавлена зависимость springdoc-openapi-starter-webmvc-ui** (версия 2.3.0) в pom.xml
+2. **Настроен ResourceHandler** для Swagger UI в AppConfig.java (Spring Boot 3.x совместимость)
+3. **Добавлен метод `canWork()`** в интерфейс `LlmProvider`:
+   - Проверяет наличие и валидность API ключей
+   - Возвращает `true` если провайдер может работать, `false` иначе
+4. **Реализован graceful fallback** в `LlmProviderFactory`:
+   - При отсутствии ключей автоматически переключается на mock-провайдер
+   - Записывает предупреждение в лог: `"Провайдер X не может работать (отсутствуют ключи). Используется mock."`
+5. **Обновлен .env по умолчанию**: `LLM_PROVIDER=mock` для стабильной работы без внешних зависимостей
+6. **Добавлена конфигурация springdoc** в application.yml:
+   ```yaml
+   springdoc:
+     api-docs:
+       path: /api-docs
+     swagger-ui:
+       path: /swagger-ui.html
+       enabled: true
+   ```
+
+### Исправление имени ветки в vm-bootstrap.sh
+
+**Проблема:** Скрипт деплоя использовал ветку `main` по умолчанию, хотя репозиторий использует `master`.
+
+**Решение (commit e2b908c):** Изменена переменная `BRANCH` по умолчанию с `main` на `master` в deploy/vm-bootstrap.sh
+
+---
+
+## 10. Быстрое обновление на VM
+
+После получения изменений из репозитория:
+
+```bash
+# Вариант 1: Автоматический (рекомендуется)
+cd /opt/fintech-compliance
+sudo ./deploy/vm-bootstrap.sh
+
+# Вариант 2: Ручной
+cd /opt/fintech-compliance
+git pull origin master
+DOCKER_BUILDKIT=0 docker compose up -d --build
+docker compose logs --tail=50 app
+```
+
+Проверка работоспособности:
+```bash
+curl http://localhost:8080/api/v1/health
+# Ожидаемый ответ: {"status":"UP","provider":"mock",...}
+```
+
+Swagger UI доступен по адресу:
+```
+http://localhost:8080/swagger-ui.html
+http://localhost:8080/api-docs
+```
