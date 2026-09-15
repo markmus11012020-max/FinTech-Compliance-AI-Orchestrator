@@ -1,0 +1,11 @@
+{
+  "registry-mirrors": [
+    "https://cr.yandex"
+  ],
+  "dns": [
+    "77.88.8.8",
+    "8.8.8.8"
+  ],
+  "log-level": "warn",
+  "storage-driver": "overlay2"
+}

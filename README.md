@@ -49,6 +49,10 @@ fintech-compliance-orchestrator/
 ├── docker-compose.yml                  # PostgreSQL + app
 ├── start.bat                           # автодеплой для Windows
 ├── .env.example                        # пресет переменных окружения
+├── deploy/
+│   ├── vm-bootstrap.sh                 # оркестратор деплоя на Yandex Cloud VM
+│   ├── daemon.json                     # шаблон /etc/docker/daemon.json
+│   └── README.md
 ├── README.md
 └── src/
     ├── main/
@@ -188,11 +192,51 @@ nano .env   # заполнить YANDEXGPT_API_KEY / GIGACHAT_API_KEY
 | **YandexGPT** | https://cloud.yandex.ru/docs/iam/concepts/authorization/api-key — `YANDEXGPT_API_KEY`, `YANDEXGPT_FOLDER_ID` |
 | **GigaChat** | https://developers.sber.ru/docs/ru/gigachat/quickstart/quick-start-acquiring-access-token — `GIGACHAT_API_KEY` |
 
-### 5.4. Запуск
+### 5.4. Быстрый запуск на VM (рекомендуемый путь)
+
+В каталоге `deploy/` лежит полный оркестрационный скрипт, который выполняет
+все DevOps-шаги одной командой:
 
 ```bash
-docker compose up -d
-docker compose logs -f app
+# На самой VM:
+chmod +x deploy/vm-bootstrap.sh
+sudo ./deploy/vm-bootstrap.sh
+```
+
+Или удалённо с локальной машины:
+
+```bash
+ssh ubuntu@<VM-IP> 'bash -s' < deploy/vm-bootstrap.sh
+```
+
+Что делает `vm-bootstrap.sh`:
+
+1. Записывает `/etc/docker/daemon.json` (registry-mirror `https://cr.yandex`, DNS `77.88.8.8` + `8.8.8.8`).
+2. Перезапускает службу `docker` через `systemctl restart docker`.
+3. Клонирует/обновляет код из Git-репозитория.
+4. Запускает `docker compose up -d --build`.
+5. Если `BuildKit` блокирует сборку — автоматически повторяет с `DOCKER_BUILDKIT=0`.
+6. Выводит `docker compose logs app` для подтверждения, что Spring Boot подключился
+   к PostgreSQL и YandexGPT без ошибок.
+
+Параметры (через ENV): `REPO_URL`, `BRANCH`, `APP_DIR`, `DAEMON_JSON_SOURCE`.
+
+### 5.5. Ручной запуск (fallback)
+
+```bash
+sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
+{
+  "registry-mirrors": ["https://cr.yandex"],
+  "dns": ["77.88.8.8", "8.8.8.8"]
+}
+EOF
+sudo systemctl restart docker
+
+docker compose up -d --build
+# если BuildKit мешает:
+DOCKER_BUILDKIT=0 docker compose up -d --build
+
+docker compose logs app
 ```
 
 Проверка:
@@ -205,7 +249,7 @@ curl http://localhost:8080/api/v1/health
 docker compose down
 ```
 
-Альтернатива на Windows:
+Альтернатива на Windows (локальная разработка):
 ```bat
 start.bat
 ```
